@@ -1,0 +1,63 @@
+{% extends 'main.j2' %}
+
+{% block entry_form %}
+    <form class="Form" method="POST" action="{{url_for('create_db_entry') }}">
+        <input type="hidden" name="select-type" value="{{ select_type }}" />
+        {% for field in fields %}
+            {% if field == "Pet" %}
+                    <span class="input-group-text">Pet</span>
+                    <select name="Pet" class="select-form-control">
+                        {% for pet in pets %}
+                            <option value="{{ pet['pet_name'] }}">{{ pet['pet_name'] }}</option>
+                        {% endfor %}
+                    </select><br>
+            {% elif field == "Ability" %}
+                <span class="input-group-text">Ability</span>
+                    <select name="Ability" class="select-form-control">
+                        {% for ability in abilities %}
+                            <option value="{{ ability['ability_name'] }}">{{ ability['ability_name'] }}</option>
+                        {% endfor %}
+                    </select><br>
+            {% elif field == "Weapon" %}
+                <span class="input-group-text">Weapon</span>
+                    <select name="Weapon" class="select-form-control">
+                        {% for weapon in weapons %}
+                            <option value="{{ weapon['item_name'] }}">{{ weapon['item_name'] }}</option>
+                        {% endfor %}
+                    </select><br>
+            {% elif field == "Armor" %}
+                <span class="input-group-text">Armor</span>
+                    <select name="Armor" class="select-form-control">
+                        {% for armor in armors %}
+                            <option value="{{ armor['item_name'] }}">{{ armor['item_name'] }}</option>
+                        {% endfor %}
+                    </select><br>
+            {% elif field == "Guild" %}
+                <span class="input-group-text">Guild</span>
+                    <select name="Guild" class="select-form-control">
+                        {% for guild in guilds %}
+                            <option value="{{ guild['guild_name'] }}">{{ guild['guild_name'] }}</option>
+                        {% endfor %}
+                    </select><br>
+            {% elif field == "Item Type" %}
+                <span class="input-group-text">Item Type</span>
+                    <select name="Item Type" class="select-form-control">
+                        {% for type in item_types %}
+                            <option value="{{ type }}">{{ type }}</option>
+                        {% endfor %}
+                    </select><br>
+            {% elif field == "Rarity" %}
+                <span class="input-group-text">Rarity</span>
+                    <select name="Rarity" class="select-form-control">
+                        {% for rarity in item_rarity %}
+                            <option value="{{ rarity }}">{{ rarity }}</option>
+                        {% endfor %}
+                    </select><br>
+            {% else %}
+                <label for="{{ field }}">{{ field }}</label>
+                <input type="text" id="{{ field }}" name="{{ field }}"><br>
+            {% endif %}
+        {% endfor %}
+        <input class="form-submit" type="submit" value="Create Record">
+    </form>
+{% endblock entry_form %}
