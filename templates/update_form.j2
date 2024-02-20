@@ -1,9 +1,10 @@
 {% extends 'main.j2' %}
 
 {% block update_form %}
-    <form class="Form" method="POST" action="">
-        <input type="hidden" name="select-type" value="{{ select_type }}" />
-
+    <form class="Form" method="POST" action="{{ url_for('update_db_entry') }}">
+                {# <label for="Name" class="input-group-text">Name</label> #}
+                <span class="input-group-text">Name</span>
+                <input type="text" id="Name" name="Name" placeholder="{{ name }}"> 
         {% for field in fields %}
             {% if field == "Pet" %}
                     <span class="input-group-text">Pet</span>

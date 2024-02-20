@@ -5,31 +5,43 @@
     <div style="text-align: center; display: flex; justify-content: center;">
         <table>
             <thead>
-                <tr style="text-align: center;">
+                <tr>
                     <th>
-                        {{ headers[0] }}
+                        Alliance Name
+                    </th>
+                    <th colspan="{{ max_members }}" style="text-align: center">
+                        Members
                     </th>
                     <th></th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                {% for el in results %}
+                {% for key, value in alliances_members.items() %}
                     <tr>
-                        <td>
-                            {{ el[headers[0].lower()] }}
-                        </td>
+                        <td style="font-weight: bold">{{ key }}</td>
+                        {% for i in range(max_members) %}
+                            {% if value[0] == '' and i == 0 %}
+                                <td>
+                                    None
+                                </td>
+                            {% else %}
+                                <td>
+                                    {{ value[i] }}
+                                </td>
+                            {% endif %}
+                        {% endfor %}
                         <td>
                             <form class="update-player" method="POST" action="{{ url_for('create_update_form') }}">
-                                <input type="hidden" name="update-type" value="Player" />
-                                <input type="hidden" name="record" value="{{ el['name'] }}" />
+                                <input type="hidden" name="update-type" value="Alliance" />
+                                <input type="hidden" name="record" value="{{ key }}" />
                                 <input type="submit" name="Update" value="Update" />
                             </form>
                         </td>
                         <td>
                             <form class="delete-button" method="POST" action="{{ url_for('delete_db_entry') }}">
-                                <input type="hidden" name="delete-type" value="Alliance" />
-                                <input type="hidden" name="record" value="{{ el['name'] }}" />
+                                <input type="hidden" name="delete-type" value="Ability" />
+                                <input type="hidden" name="record" value="{{ key }}" />
                                 <input type="submit" name="delete" value="Delete" />
                             </form>
                         </td>
