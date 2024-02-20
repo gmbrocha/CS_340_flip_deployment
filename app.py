@@ -12,17 +12,24 @@ def root():
     return render_template('main.j2')
 
 
+# # TODO CONSOLIDATE DISPLAY ROUTES
+# @app.route('/display/<display_type>', methods=['POST', 'GET'])
+# def display_table(display_type):
+    
+#     return render_template('status_message.j2', display_type=display_type)
+
+
 @app.route('/players', methods=['POST', 'GET'])
 def display_players():
-
+    
     query = 'SELECT Players.player_name AS name, Special_Abilities.ability_name AS ability, ' \
-            'Pets.pet_name AS pet, i.item_name AS weapon, i2.item_name AS armor, Guilds.guild_name AS guild ' \
-            'FROM Players ' \
-            'INNER JOIN Special_Abilities ON Players.player_abilityID = Special_Abilities.abilityID ' \
-            'INNER JOIN Pets ON Players.petID = Pets.petID ' \
-            'INNER JOIN Items AS i ON Players.weaponID = i.itemID ' \
-            'INNER JOIN Items AS i2 ON Players.armorID = i2.itemID ' \
-            'INNER JOIN Guilds ON Players.guildID = Guilds.guildID;'
+        'Pets.pet_name AS pet, i.item_name AS weapon, i2.item_name AS armor, Guilds.guild_name AS guild ' \
+        'FROM Players ' \
+        'LEFT JOIN Special_Abilities ON Players.player_abilityID = Special_Abilities.abilityID ' \
+        'LEFT JOIN Pets ON Players.petID = Pets.petID ' \
+        'LEFT JOIN Items AS i ON Players.weaponID = i.itemID ' \
+        'LEFT JOIN Items AS i2 ON Players.armorID = i2.itemID ' \
+        'LEFT JOIN Guilds ON Players.guildID = Guilds.guildID ' \
     
     headers = ['Name', 'Ability', 'Pet', 'Weapon', 'Armor', 'Guild']  # the headers for display in the table
 
@@ -120,7 +127,43 @@ def display_alliances():
 
     results = cur.fetchall()
 
-    return render_template('alliances.j2', results=results, headers=headers)
+    alliances_names = []
+    for d in results:
+        alliances_names.append(d['name'])
+
+    alliances_members = {}
+
+    # query = f"""SELECT Guilds.guild_name AS name FROM Guilds
+    #             INNER JOIN Alliances_Guilds
+    #             ON Alliances_Guilds.guildID = Guilds.guildID
+    #             INNER JOIN Alliances
+    #             ON Alliances_Guilds.allianceID = Alliances.allianceID
+    #             WHERE Alliances.alliance_name = '{alliances_names[0]}';"""
+    
+    # cur = db.execute_query(db_connection=con, query=query)
+    # result = cur.fetchall()
+
+    max_members = 0
+
+    for alliance in alliances_names:
+        guilds = []
+        query = f"""SELECT Guilds.guild_name AS name FROM Guilds
+                JOIN Alliances_Guilds
+                ON Alliances_Guilds.guildID = Guilds.guildID
+                JOIN Alliances
+                ON Alliances_Guilds.allianceID = Alliances.allianceID
+                WHERE Alliances.alliance_name = '{alliance}';"""
+        cur = db.execute_query(db_connection=con, query=query)
+        results = cur.fetchall()
+
+        for d in results:
+            guilds.append(d['name'])
+        max_members = max(max_members, len(guilds))
+        alliances_members[alliance] = guilds
+            
+    return render_template('alliances.j2', headers=headers)
+    # return render_template('alliances.j2', results=alliances_members, headers=headers, max_members=max_members)
+    # return render_template('status_message.j2', message=alliances_members)
 
 @app.route('/delete', methods=['POST', 'GET'])
 def delete_db_entry():

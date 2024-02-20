@@ -3,22 +3,44 @@
 {% block alliances_display %}
     <h3 style="text-align: center">Alliances</h3>
     <div style="text-align: center; display: flex; justify-content: center;">
-        <table>
+        {# <table>
             <thead>
                 <tr style="text-align: center;">
                     <th>
                         {{ headers[0] }}
                     </th>
-                    <th></th>
-                    <th></th>
+                    <th>
+                        Members
+                    </th>
+                    {% for i in range(max_members - 1) %}
+                        <th></th>
+                    {% endfor %}
                 </tr>
             </thead>
+            <tr>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+            </tr>
             <tbody>
-                {% for el in results %}
+                {% for key, value in results.items() %}
                     <tr>
                         <td>
-                            {{ el[headers[0].lower()] }}
+                            {{ key }}
                         </td>
+                        {# begin members display #}
+                        {% for i in range(max_members) %}
+                                {% if val[i] %}
+                                <td>
+                                    {{ val[i] }}
+                                </td>
+                                {% else %}
+                                <td></td>
+                                {% endif%}
+                        {% endfor %}
                         <td>
                             <form class="update-player" method="POST" action="{{ url_for('create_update_form') }}">
                                 <input type="hidden" name="update-type" value="Player" />
@@ -36,6 +58,6 @@
                     </tr>
                 {% endfor %}
             </tbody>
-        </table>
+        </table> #}
     </div>
 {% endblock alliances_display %}
