@@ -3,61 +3,51 @@
 {% block alliances_display %}
     <h3 style="text-align: center">Alliances</h3>
     <div style="text-align: center; display: flex; justify-content: center;">
-        {# <table>
+        <table>
             <thead>
-                <tr style="text-align: center;">
+                <tr>
                     <th>
-                        {{ headers[0] }}
+                        Alliance Name
                     </th>
-                    <th>
+                    <th colspan="{{ max_members }}" style="text-align: center">
                         Members
                     </th>
-                    {% for i in range(max_members - 1) %}
-                        <th></th>
-                    {% endfor %}
+                    <th></th>
+                    <th></th>
                 </tr>
             </thead>
-            <tr>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                </td>
-            </tr>
             <tbody>
-                {% for key, value in results.items() %}
+                {% for key, value in alliances_members.items() %}
                     <tr>
-                        <td>
-                            {{ key }}
-                        </td>
-                        {# begin members display #}
+                        <td style="font-weight: bold">{{ key }}</td>
                         {% for i in range(max_members) %}
-                                {% if val[i] %}
+                            {% if value[0] == '' and i == 0 %}
                                 <td>
-                                    {{ val[i] }}
+                                    None
                                 </td>
-                                {% else %}
-                                <td></td>
-                                {% endif%}
+                            {% else %}
+                                <td>
+                                    {{ value[i] }}
+                                </td>
+                            {% endif %}
                         {% endfor %}
                         <td>
                             <form class="update-player" method="POST" action="{{ url_for('create_update_form') }}">
-                                <input type="hidden" name="update-type" value="Player" />
-                                <input type="hidden" name="record" value="{{ el['name'] }}" />
+                                <input type="hidden" name="update-type" value="Alliance" />
+                                <input type="hidden" name="record" value="{{ key }}" />
                                 <input type="submit" name="Update" value="Update" />
                             </form>
                         </td>
                         <td>
                             <form class="delete-button" method="POST" action="{{ url_for('delete_db_entry') }}">
-                                <input type="hidden" name="delete-type" value="Alliance" />
-                                <input type="hidden" name="record" value="{{ el['name'] }}" />
+                                <input type="hidden" name="delete-type" value="Ability" />
+                                <input type="hidden" name="record" value="{{ key }}" />
                                 <input type="submit" name="delete" value="Delete" />
                             </form>
                         </td>
                     </tr>
                 {% endfor %}
             </tbody>
-        </table> #}
+        </table>
     </div>
 {% endblock alliances_display %}

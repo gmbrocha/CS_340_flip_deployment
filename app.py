@@ -96,23 +96,45 @@ def display_items():
 @app.route('/guilds', methods=['POST', 'GET'])
 def display_guilds():
 
-    query = 'SELECT Guilds.guild_name AS name, ' \
-            'Guilds.guild_color AS color ' \
-            'FROM Guilds'
-
-    headers = ['Name', 'Color']  # the headers for display in the table
+    query = """SELECT Guilds.guild_name AS name, Guilds.guild_color AS color
+            FROM Guilds"""
 
     cur = db.execute_query(db_connection=con, query=query)
 
     guilds = cur.fetchall()
 
-    # convert color int to hex and replace value, change from tuple since immutable
-    guilds_list = []
-    for el in guilds:
-        hex_color = hex(el['color'])
-        guilds_list.append([el['name'], hex_color])
+    headers = ['Name', 'Color', 'Alliances']  # the headers for display in the table
 
-    return render_template('guilds.j2', results=guilds_list, headers=headers)
+    guilds_names = []
+    for g in guilds:
+        guilds_names.append([g['name'], hex(g['color'])])
+
+    guilds_dict = {}
+
+    max_members = 0
+
+    for guild in guilds_names:
+        alliances = []
+        query = f'''SELECT Alliances.alliance_name AS name FROM Alliances
+            INNER JOIN Alliances_Guilds
+            ON Alliances_Guilds.allianceID = Alliances.allianceID
+            INNER JOIN Guilds
+            ON Alliances_Guilds.guildID = Guilds.guildID
+            WHERE Guilds.guild_name = "{guild[0]}";'''
+        cur = db.execute_query(db_connection=con, query=query)
+        results = cur.fetchall()
+
+        for d in results:
+            alliances.append(d['name'])
+        guilds_dict[guild[0]] = alliances
+        max_members = max(max_members, len(alliances))
+        guilds_dict[guild[0]] = [guild[1], alliances]
+
+        for name in guilds_dict:
+            for _ in range(len(guilds_dict[name][1]), max_members):
+                guilds_dict[name][1].append('')
+
+    return render_template('guilds.j2', guilds_dict=guilds_dict, max_members=max_members, headers=headers)
 
 
 @app.route('/alliances', methods=['POST', 'GET'])
@@ -133,16 +155,6 @@ def display_alliances():
 
     alliances_members = {}
 
-    # query = f"""SELECT Guilds.guild_name AS name FROM Guilds
-    #             INNER JOIN Alliances_Guilds
-    #             ON Alliances_Guilds.guildID = Guilds.guildID
-    #             INNER JOIN Alliances
-    #             ON Alliances_Guilds.allianceID = Alliances.allianceID
-    #             WHERE Alliances.alliance_name = '{alliances_names[0]}';"""
-    
-    # cur = db.execute_query(db_connection=con, query=query)
-    # result = cur.fetchall()
-
     max_members = 0
 
     for alliance in alliances_names:
@@ -160,10 +172,12 @@ def display_alliances():
             guilds.append(d['name'])
         max_members = max(max_members, len(guilds))
         alliances_members[alliance] = guilds
+
+    for name in alliances_members:
+        for _ in range(len(alliances_members[name]), max_members):
+            alliances_members[name].append('')
             
-    return render_template('alliances.j2', headers=headers)
-    # return render_template('alliances.j2', results=alliances_members, headers=headers, max_members=max_members)
-    # return render_template('status_message.j2', message=alliances_members)
+    return render_template('alliances.j2', alliances_members=alliances_members, max_members=max_members)
 
 @app.route('/delete', methods=['POST', 'GET'])
 def delete_db_entry():
@@ -189,94 +203,106 @@ def delete_db_entry():
     try:
         db.execute_query(db_connection=db, query=query)
     except:
-        message = 'Record NOT Deleted! (Check Keys?)'
+        message = "Record NOT Deleted! Bet you didn't check to see whether that key was attached to another entity. Shame."
     finally:
         return render_template('status_message.j2', message=message)
 
 
 @app.route('/update', methods=['POST', 'GET'])
 def create_update_form():
-    # TODO THIS NEEDS TO BE FIXED
-    pass
-    # # need to check form hidden attribute which will contain the update type
-    # select = request.form.get('update-type')
+     # get the entry type from the form
+    select = request.form.get('update-type')
+    record_name = request.form.get('record')
 
-    # ability_query = 'SELECT ability_name FROM Special_Abilities;'
-    # pet_query = 'SELECT pet_name FROM Pets;'
-    # weapon_query = 'SELECT item_name FROM Items WHERE item_type = "sword";'
-    # armor_query = 'SELECT item_name FROM Items WHERE item_type ="armor";'
-    # guild_query = 'SELECT guild_name FROM Guilds;'
-    # pet_type_query = 'SELECT DISTINCT pet_type FROM Pets;'
+    # # TODO COMMENT THESE QUERIES
+    ability_query = "SELECT `ability_name` FROM `Special_Abilities`;"
+    pet_query = "SELECT `pet_name` FROM `Pets`;"
+    weapon_query = "SELECT `item_name` FROM `Items` WHERE `item_type` = 'weapon';"
+    armor_query = "SELECT `item_name` FROM `Items` WHERE `item_type` ='armor';"
+    guild_query = "SELECT `guild_name` FROM `Guilds`;"
 
-    # fields = []
-    # abilities = []
-    # pets = []
-    # weapons = []
-    # armors = []
-    # guilds = []
-    # pet_types = []
+    # create empty queries for cases that the attribute isn't necessary
+    fields = []
+    abilities = []
+    pets = []
+    weapons = []
+    armors = []
+    guilds = []
+    pet_types = []
 
-    # # TODO FINISH CASES
-    # if select == 'Player':
-    #     fields = ['Name', 'Ability', 'Pet', 'Weapon', 'Armor', 'Guild']
-    #     item_types = ['sword', 'armor']
-    #     item_rarity = ['common', 'uncommon', 'rare', 'legendary']
+    # these aren't nested, they don't have their own queries because they are static
+    item_types = ['sword', 'armor']
+    item_rarities = ['common', 'uncommon', 'rare', 'epic', 'legendary']
 
-    #     cur = db.execute_query(db_connection=con, query=ability_query)
-    #     abilities = cur.fetchall()
+    if select == "Player":
+        # fields = ['Name', 'Ability', 'Pet', 'Weapon', 'Armor', 'Guild']
+        fields = ['Ability', 'Pet', 'Weapon', 'Armor', 'Guild']
 
-    #     cur = db.execute_query(db_connection=con, query=pet_query)
-    #     pets = cur.fetchall()
+        # get abilities for dropdown
+        cur = db.execute_query(db_connection=con, query=ability_query)
+        abilities = cur.fetchall()
 
-    #     cur = db.execute_query(db_connection=con, query=weapon_query)
-    #     weapons = cur.fetchall()
+        # get pets for dropdown
+        cur = db.execute_query(db_connection=con, query=pet_query)
+        pets = cur.fetchall()
 
-    #     cur = db.execute_query(db_connection=con, query=armor_query)
-    #     armors = cur.fetchall()
+        # get weapons for dropdown
+        cur = db.execute_query(db_connection=con, query=weapon_query)
+        weapons = cur.fetchall()
 
-    #     cur = db.execute_query(db_connection=con, query=guild_query)
-    #     guilds = cur.fetchall()
+        # get armors for dropdown
+        cur = db.execute_query(db_connection=con, query=armor_query)
+        armors = cur.fetchall()
 
-    # if select == 'Item':
-    #     fields = ['Name', 'Item Type', 'Defense', 'Attack', 'Rarity']
-    #     item_types = ['sword', 'armor']
-    #     item_rarity = ['common', 'uncommon', 'rare', 'legendary']
+        # get guilds for dropdown
+        cur = db.execute_query(db_connection=con, query=guild_query)
+        guilds = cur.fetchall()
 
-    # if select == "Pet":
-    #     fields = ['Name', 'Ability', 'Pet Type', 'Attack', 'Defense']
-    #     item_types = ['sword', 'armor']
-    #     item_rarity = ['common', 'uncommon', 'rare', 'legendary']
+        # TODO FIGURE OUT THIS QUERY BELOW - THIS RECORD WILL BE USED TO PREPOPULATE THE FORM
+        # TODO pass the player_record object to the template and parse it for placeholder= in each input
 
-    #     # get abilities for dropdown
-    #     cur = db.execute_query(db_connection=con, query=ability_query)
-    #     abilities = cur.fetchall()
+        # query = f"""SELECT Players.player_name, Special_Abilities.ability_name, Pets.pet_name, Items.item_name,
+        #         Items.item_name, Guilds.guild_name 
+        #         FROM Players 
+        #         LEFT JOIN Special_Abilities ON Special_Abilities.abilityID = Players.player_abilityID
+        #         LEFT JOIN Pets ON Players.petID = Pets.petID
+        #         LEFT JOIN Items ON Players.weaponID = Items.itemID
+        #         LEFT JOIN Items ON Players.armorID = Items.itemID
+        #         LEFT JOIN Guilds ON Players.guildID = Guilds.guildID
+        #         WHERE Players.player_name = '{record_name}'"""
+        # cur = db.execute_query(db_connection=con, query=query)
+        # player_record = cur.fetchall()
 
-    #     # get abilities for dropdown
-    #     cur = db.execute_query(db_connection=con, query=pet_type_query)
-    #     pet_types = cur.fetchall()
+    if select == "Pet":
+        # fields = ['Name', 'Ability', 'Pet Type', 'Attack', 'Defense']
+        fields = ['Ability', 'Pet Type', 'Attack', 'Defense']
 
-    #     if select == "Ability":
-    #         fields = ['Name', 'Attack', 'Cost']
-    #         item_types = ['sword', 'armor']
-    #         item_rarity = ['common', 'uncommon', 'rare', 'legendary']
+        # get abilities for dropdown
+        cur = db.execute_query(db_connection=con, query=ability_query)
+        abilities = cur.fetchall()
 
-    #     if select == "Guild":
-    #         fields = ['Name', 'Color']
-    #         item_types = ['sword', 'armor']
-    #         item_rarity = ['common', 'uncommon', 'rare', 'legendary']
+    if select =="Ability":
+        # fields = ['Name', 'Attack', 'Cost']
+        fields = ['Attack', 'Cost']
 
-    #     if select == "Alliance":
-    #         fields = ['Name']
-    #         item_types = ['sword', 'armor']
-    #         item_rarity = ['common', 'uncommon', 'rare', 'legendary']
+    if select == "Item":
+        # fields = ['Name', 'Item Type', 'Defense', 'Attack', 'Rarity']
+        fields = ['Item Type', 'Defense', 'Attack', 'Rarity']
 
-    # return render_template('update_form.j2', select_type=select, fields=fields, abilities=abilities, pets=pets,
-    #                        weapons=weapons, armors=armors, guilds=guilds, pet_types = pet_types, item_types = item_types,
-    #                        item_rarity = item_rarity)
+    if select == "Guild":
+        # fields = ['Name', 'Color']
+        fields = ['Color']
+
+    if select == "Alliance":
+        # fields = ['Name']
+        fields = []
+
+    return render_template('update_form.j2', name=record_name, select_type=select, fields=fields, abilities=abilities, pets=pets,
+                           weapons=weapons, armors=armors, item_types=item_types, guilds=guilds,
+                           item_rarity=item_rarities, pet_types=pet_types)
 
 @app.route('/update-db', methods=['POST', 'GET'])
 def update_db_entry():
-    # TODO FINISH THIS IMPLEMENTATION
     pass
 
 @app.route('/create-db-entry', methods=['POST'])

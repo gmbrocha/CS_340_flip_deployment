@@ -25,7 +25,7 @@
                         {% endfor %}
                         <td>
                             <form class="update-player" method="POST" action="{{ url_for('create_update_form') }}">
-                                <input type="hidden" name="update-type" value="Player" />
+                                <input type="hidden" name="update-type" value="Item" />
                                 <input type="hidden" name="record" value="{{ el['name'] }}" />
                                 <input type="submit" name="Update" value="Update" />
                             </form>
