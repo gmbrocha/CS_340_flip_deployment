@@ -7,16 +7,16 @@
 </head>
 <body>
     <div class="body-container">
-        <div id="app-header" style="text-align: center">
+        <div id="app-header">
             <h1>FantasyGame Armory</h1>
         </div>
-        <div id="sub-header" style="text-align: center">
+        <div id="app-header">
             <h2>the most <span style="font-style: italic">extensive</span> database for FantasyGame</h2>
         </div>
         <h3 style="padding: 10px;">
             View tables here:
         </h3>
-        <div style="padding: 10px;">
+        <div class="nav-buttons" style="padding: 10px;">
             <a href="{{ url_for('display_players') }}">Players</a>
             <a href="{{ url_for('display_pets') }}">Pets</a>
             <a href="{{ url_for('display_abilities') }}">Abilities</a>
@@ -29,7 +29,7 @@
         <div>
             <form class="entry-menu" method="POST" action="{{ url_for('create_entry_form') }}">
                 <div class="dropdown-group" style="padding: 10px">
-                        <h3 style="padding: 0;">Select and create entry here:</h3>
+                        <h3 style="padding: 0;">Select and create record here:</h3>
                             <select name="entry-type" class="select-form-control">
                                 <option value="Player">Player</option>
                                 <option value="Pet">Pet</option>
@@ -54,6 +54,10 @@
         {% block entry_form %}{% endblock entry_form %}
         {% block update_form %}{% endblock update_form %}
         {% block status_message %}{% endblock status_message %}
+        {% block alliances_guilds %}{% endblock alliances_guilds %}
+    </div>
+    <div class="copyright-display">
+        <p>&#169; Team Glizzy</p>
     </div>
 </body>
 </html>

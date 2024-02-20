@@ -27,14 +27,14 @@
                             <form class="update-player" method="POST" action="{{ url_for('create_update_form') }}">
                                 <input type="hidden" name="update-type" value="Pet" />
                                 <input type="hidden" name="record" value="{{ el['name'] }}" />
-                                <input type="submit" name="Update" value="Update" />
+                                <input type="submit" name="update" value="Update" />
                             </form>
                         </td>
                         <td>
                             <form class="delete-button" method="POST" action="{{ url_for('delete_db_entry') }}">
                                 <input type="hidden" name="delete-type" value="Pet" />
                                 <input type="hidden" name="record" value="{{ el['name'] }}" />
-                                <input type="submit" name="delete" value="Update" />
+                                <input type="submit" name="delete" value="Delete" />
                             </form>
                         </td>
                     </tr>

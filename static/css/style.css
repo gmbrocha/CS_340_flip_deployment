@@ -2,6 +2,10 @@ html {
     --background-color: #ffffff;
 }
 
+#app-header {
+    text-align: center;
+}
+
 body {
     font-family: 'Courier New', monospace;
     margin: 0;
@@ -16,12 +20,33 @@ body {
     background-color: #4f4c4c;
 }
 
+.nav-buttons {
+    display: flex;
+    justify-content: center;
+}
+
+.table-display {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
 .element-display {
     color: white;
     width: 50%;
     margin: 0 auto;
     padding: 20px;
     background-color: #4f4c4c;
+}
+
+.copyright-display {
+    color: rgb(3, 3, 3);
+    width: 50%;
+    margin: 0 auto;
+    padding: 10px 2px 0px 38px;
+    background-color: #4f4c4c;
+    text-align: right; 
+    font-size: x-small;
 }
 
 a {

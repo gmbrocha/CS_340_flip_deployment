@@ -2,7 +2,7 @@
 
 {% block guilds_display %}
     <h3 style="text-align: center;">Guilds</h3>
-    <div style="text-align: center; display: flex; justify-content: center;">
+    <div class="table-display">
         <table>
             <thead>
                 <tr>
@@ -42,7 +42,7 @@
                             <form class="update-player" method="POST" action="{{ url_for('create_update_form') }}">
                                 <input type="hidden" name="update-type" value="Guild" />
                                 <input type="hidden" name="record" value="{{ key }}" />
-                                <input type="submit" name="Update" value="Update" />
+                                <input type="submit" name="update" value="Update" />
                             </form>
                         </td>
                         <td>
@@ -56,5 +56,13 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+    <hr>
+    <br>
+    <p style="text-align: center; padding: 15px;">
+        Need to add or remove a guild from an alliance? Use this instead.
+    </p>
+    <div class="nav-buttons">
+        <a href="{{ url_for('display_alliances_guilds') }}">Add Relationship</a>
     </div>
 {% endblock guilds_display %}
