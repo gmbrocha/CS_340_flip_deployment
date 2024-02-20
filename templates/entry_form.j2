@@ -58,6 +58,10 @@
                 <input type="text" id="{{ field }}" name="{{ field }}"><br>
             {% endif %}
         {% endfor %}
-        <input class="form-submit" type="submit" value="Create Record">
+        <select name="Rarity" class="select-form-control">
+                        {% for rarity in item_rarity %}
+                            <option value="{{ rarity }}">{{ rarity }}</option>
+                        {% endfor %}
+                    </select>
     </form>
 {% endblock entry_form %}

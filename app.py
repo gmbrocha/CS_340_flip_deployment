@@ -473,12 +473,36 @@ def create_entry_form():
 @app.route('/display-alliances-guilds', methods=['GET', 'POST'])
 def display_alliances_guilds():
 
-    return render_template('alliances_guilds.j2')
+    headers = ['Alliance', 'Guild']
+
+    query = '''SELECT Alliances.alliance_name AS a_name, Guilds.guild_name AS g_name
+            FROM Alliances 
+            INNER JOIN Alliances_Guilds
+            ON Alliances_Guilds.allianceID = Alliances.allianceID
+            INNER JOIN Guilds
+            ON Alliances_Guilds.guildID = Guilds.guildID;'''
+    
+    query_guilds = '''SELECT Guilds.guild_name FROM Guilds;'''
+
+    cur = db.execute_query(db_connection=con, query=query)
+    alliances_guilds = cur.fetchall()
+
+    cur = db.execute_query(db_connection=con, query=query_guilds)
+    guilds = cur.fetchall()
+
+    return render_template('alliances_guilds.j2', alliances_guilds=alliances_guilds, guilds=guilds, headers=headers)
+
+# @app.route('/display-relationship-alliances', methods=['GET, POST'])
+# def display_relationship_alliances():
+
+#     guild_name = request.args.get('Guild')
+
+#     return render_template('status_message', message= f'ALLIANCES {guild_name}')
 
 
 if __name__ == "__main__":
     
-    app.run(port=6754, debug=True)
+    app.run(port=6755, debug=True)
 
     # gunicorn -b 0.0.0.0:6754 -D app:app
     # pkill -u brocharg gunicorn
