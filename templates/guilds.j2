@@ -47,7 +47,7 @@
                         </td>
                         <td>
                             <form class="delete-button" method="POST" action="{{ url_for('delete_db_entry') }}">
-                                <input type="hidden" name="delete-type" value="Ability" />
+                                <input type="hidden" name="delete-type" value="Guild" />
                                 <input type="hidden" name="record" value="{{ key }}" />
                                 <input type="submit" name="delete" value="Delete" />
                             </form>
@@ -59,10 +59,10 @@
     </div>
     <hr>
     <br>
-    <p style="text-align: center; padding: 15px;">
-        Need to add or remove a guild from an alliance? Use this instead.
-    </p>
+        <p style="text-align: center; padding: 15px;">
+            Need to edit a guild-alliance relationship? Use this instead.
+        </p>
     <div class="nav-buttons">
-        <a href="{{ url_for('display_alliances_guilds') }}">Add Relationship</a>
+        <a href="{{ url_for('display_alliances_guilds') }}">Edit Relationships</a>
     </div>
 {% endblock guilds_display %}

@@ -2,6 +2,10 @@
 
 {% block update_form %}
     <form class="Form" method="POST" action="{{ url_for('update_db_entry') }}">
+        {# ADDED BELOW FROM TODD #}
+        <input type="hidden" name="select-type" value="{{ select_type }}" />  
+        <input type="hidden" name="old_name" value="{{ old_name }}">
+        {# ADDED ABOVE FROM TODD #}
         {% for field in fields %}
             {% if field == "Pet" %}
                     <span class="input-group-text">Pet</span>
@@ -128,6 +132,6 @@
                 <input type="text" id="{{ field }}" name="{{ field }}"><br>
             {% endif %}
         {% endfor %}
-        <input type="submit" value="Submit Update">
+        <input class="form-submit" type="submit" value="Submit Update">
     </form>
 {% endblock update_form %}

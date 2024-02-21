@@ -1,0 +1,60 @@
+{% extends 'main.j2' %}
+
+{% block alliances_guilds %}
+    <h3 style="text-align: center">Alliances - Guilds</h3>
+    <div style="text-align: center; display: flex; justify-content: center;">
+        <table>
+            <thead>
+                <tr style="text-align: center;">
+                    <th>
+                        {{ headers[0] }}
+                    </th>
+                    <th>
+                        {{ headers[1] }}
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    {% for a_g in alliances_guilds %}
+                    <tr>
+                        <td>
+                            {{ a_g['a_name'] }}
+                        </td>
+                        <td>
+                            {{ a_g['g_name'] }}
+                        </td>    
+                    <td>
+                        <form class="delete-button" method="POST" action="{{ url_for('delete_db_entry') }}">
+                                <input type="hidden" name="delete-type" value="Alliances-Guilds-Relationship" />
+                                <input type="hidden" name="a_name" value="{{ a_g['a_name'] }}" />
+                                <input type="hidden" name="g_name" value="{{ a_g['g_name'] }}" />
+                                <input type="submit" name="delete" value="Delete Relationship" />
+                        </form>
+                    </td>
+                    {% endfor %}
+                </tr>    
+            </tbody>
+        </table>
+    </div>
+    <hr>
+    <br>
+        <p style="text-align: center; padding: 15px;">
+            Delete above OR choose a two to add a relationship:
+        </p>
+    <div class="guild-dropdown-ag" style="justify-content: center; display: flex;">
+        <form class="Form" method="POST" action="{{ url_for('display_alliances_guilds') }}">
+            <select name="Guild" class="select-form-control">
+                        {% for guild in guilds %}
+                            <option value="{{ guild['guild_name'] }}">{{ guild['guild_name'] }}</option>
+                        {% endfor %}
+                    </select>
+            <select name="Alliance" class="select-form-control">
+                        {% for alliance in alliances %}
+                            <option value="{{ alliance['alliance_name'] }}">{{ alliance['alliance_name'] }}</option>
+                        {% endfor %}
+                    </select>
+            <input class="form-submit" type="submit" value="Create Relationship">
+    </div>
+{% endblock alliances_guilds %}

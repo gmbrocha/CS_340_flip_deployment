@@ -9,14 +9,8 @@ con = db.connect_to_database(host = 'classmysql.engr.oregonstate.edu', user = 'c
 # routes
 @app.route('/')
 def root():
+
     return render_template('main.j2')
-
-
-# # TODO CONSOLIDATE DISPLAY ROUTES
-# @app.route('/display/<display_type>', methods=['POST', 'GET'])
-# def display_table(display_type):
-    
-#     return render_template('status_message.j2', display_type=display_type)
 
 
 @app.route('/players', methods=['POST', 'GET'])
@@ -39,6 +33,7 @@ def display_players():
 
     return render_template('players.j2', results=results, headers=headers)
 
+
 @app.route('/pets', methods=['POST', 'GET'])
 def display_pets():
 
@@ -56,6 +51,7 @@ def display_pets():
     results = cur.fetchall()
 
     return render_template('pets.j2', results=results, headers=headers)
+
 
 @app.route('/abilities', methods=['POST', 'GET'])
 def display_abilities():
@@ -177,6 +173,7 @@ def display_alliances():
             
     return render_template('alliances.j2', alliances_members=alliances_members, max_members=max_members)
 
+
 @app.route('/delete', methods=['POST', 'GET'])
 def delete_db_entry():
 
@@ -196,12 +193,17 @@ def delete_db_entry():
         query = f'DELETE FROM Guilds WHERE guild_name = "{record}";'
     if select == 'Alliance':
         query = f'DELETE FROM Alliances WHERE alliance_name = "{record}";'
+    if select == 'Alliances-Guilds-Relationship':
+        a_name = request.form.get('a_name')
+        g_name = request.form.get('g_name')
+        query = f'''DELETE FROM Alliances_Guilds WHERE allianceID = (SELECT allianceID FROM Alliances WHERE alliance_name = "{a_name}")
+                AND guildID = (SELECT guildID FROM Guilds WHERE guild_name = "{g_name}");'''
 
-    message = 'Record Deleted!'
+    message = 'The answer to life the universe and everything: 42. Record deleted!'
     try:
         db.execute_query(db_connection=con, query=query)
     except:
-        message = "Record NOT Deleted! Bet you didn't check to see whether a key was restricted by another entity. Shame."
+        message = 'You think you can just delete things all willy nilly from this db? Check your keys, fool. Record NOT deleted!'
     finally:
         return render_template('status_message.j2', message=message)
 
@@ -209,9 +211,11 @@ def delete_db_entry():
 @app.route('/update', methods=['POST', 'GET'])
 def create_update_form():
 
-     # get the update type and individual record from the form
+    # get the update type and individual record from the form
     select = request.form.get('update-type')
     record_name = request.form.get('record')
+    # TODO ADDED FROM TODD
+    old_name = record_name
 
     ability_query = "SELECT `ability_name` FROM `Special_Abilities`;"
     pet_query = "SELECT `pet_name` FROM `Pets`;"
@@ -287,7 +291,7 @@ def create_update_form():
         cur = db.execute_query(db_connection=con, query=query)
         record_attr = cur.fetchall()
 
-    if select =="Ability":
+    if select == "Ability":
         fields = ['Name', 'Attack', 'Cost']
 
         query = f"""SELECT Special_Abilities.ability_name AS ab_name, Special_Abilities.ability_attack AS attack,
@@ -327,12 +331,128 @@ def create_update_form():
 
     return render_template('update_form.j2', record_attr=record_attr, name=record_name, select_type=select, fields=fields, abilities=abilities, pets=pets,
                            weapons=weapons, armors=armors, item_types=item_types, guilds=guilds,
-                           item_rarity=item_rarities, pet_types=pet_types)
+                           item_rarity=item_rarities, pet_types=pet_types, old_name=old_name)
 
 @app.route('/update-db', methods=['POST', 'GET'])
 def update_db_entry():
     
-    return render_template('status_message.j2', message='not implemented')
+    ############################
+    # CODE BELOW ADDED BY TODD #
+    ############################
+
+    if request.method == 'POST':
+        record_name = request.form.get('record')
+        select = request.form.get('select-type')
+
+        # Retrieve all form data
+        old_name = request.form.get('old_name')  # Assuming the name uniquely identifies the row
+        print("Old name:", old_name)
+        # Retrieve other fields as needed
+        # Retrieve all form fields
+
+        # Construct the update query based on the select type and form data
+        query = ''
+        if select == 'Player':
+            new_name = request.form.get('Name')
+            new_ability = request.form.get('Ability')
+            new_pet = request.form.get('Pet')
+            new_weapon = request.form.get('Weapon')
+            new_armor = request.form.get('Armor')
+            new_guild = request.form.get('Guild')
+
+            query = f"""UPDATE Players 
+                        SET player_name = '{new_name}',
+                        player_abilityID = (SELECT abilityID FROM Special_Abilities WHERE ability_name = '{new_ability}'),
+                        petID = (SELECT petID FROM Pets WHERE pet_name = '{new_pet}'),
+                        weaponID = (SELECT itemID FROM Items WHERE item_name = '{new_weapon}'),
+                        armorID = (SELECT itemID FROM Items WHERE item_name = '{new_armor}'),
+                        guildID = (SELECT guildID FROM Guilds WHERE guild_name = '{new_guild}')
+                        WHERE player_name = '{old_name}';"""  # Update based on old name
+
+        elif select == 'Pet':
+            # Retrieve all form fields
+            new_name = request.form.get('Name')
+            new_ability = request.form.get('Ability')
+            new_type = request.form.get('Pet Type')
+            new_attack = request.form.get('Attack')
+            new_defense = request.form.get('Defense')
+
+            # Construct the update query for Pet
+            query = f"""UPDATE Pets 
+                        SET pet_name = '{new_name}',
+                        pet_abilityID = (SELECT abilityID FROM Special_Abilities WHERE ability_name = '{new_ability}'),
+                        pet_type = '{new_type}',
+                        pet_attack = {int(new_attack)},
+                        pet_defense = {int(new_defense)}
+                        WHERE pet_name = '{old_name}';"""
+
+        elif select == 'Ability':
+            # Retrieve all form fields
+            new_name = request.form.get('Name')
+            new_attack = request.form.get('Attack')
+            new_cost = request.form.get('Cost')
+
+            # Construct the update query for Ability
+            query = f"""UPDATE Special_Abilities 
+                        SET ability_name = '{new_name}',
+                        ability_attack = {int(new_attack)},
+                        ability_cost = {int(new_cost)}
+                        WHERE ability_name = '{old_name}';"""
+
+        elif select == 'Item':
+            # Retrieve all form fields
+            new_name = request.form.get('Name')
+            new_type = request.form.get('Item Type')
+            new_defense = request.form.get('Defense')
+            new_attack = request.form.get('Attack')
+            new_rarity = request.form.get('Rarity')
+
+            # Construct the update query for Item
+            query = f"""UPDATE Items 
+                        SET item_name = '{new_name}',
+                        item_type = '{new_type}',
+                        item_defense = {int(new_defense)},
+                        item_attack = {int(new_attack)},
+                        item_rarity = '{new_rarity}'
+                        WHERE item_name = '{old_name}';"""
+
+        elif select == 'Guild':
+            # Retrieve all form fields
+            new_name = request.form.get('Name')
+            new_color = request.form.get('Color')
+
+            # Construct the update query for Guild
+            query = f"""UPDATE Guilds 
+                        SET guild_name = '{new_name}',
+                        guild_color = {int(new_color)}
+                        WHERE guild_name = '{old_name}';"""
+
+        elif select == 'Alliance':
+            # Retrieve all form fields
+            new_name = request.form.get('Name')
+
+            # Construct the update query for Alliance
+            query = f"""UPDATE Alliances 
+                        SET alliance_name = '{new_name}'
+                        WHERE alliance_name = '{old_name}';"""
+
+        # Add conditions for other select types (Ability, Item, Guild, Alliance) similarly
+
+        # Execute the query
+        try:
+            db.execute_query(db_connection=con, query=query)
+            message = 'Record Updated!'
+        except Exception as e:
+            message = f"Error updating record: {str(e)}"
+        return render_template('status_message.j2', message=message)
+    else:
+        select = request.form.get('select-type')
+        message = "Invalid select type"
+        return render_template('status_message.j2', message=message)
+
+    #################################
+    # TODO CODE ABOVE ADDED BY TODD #
+    #################################
 
 @app.route('/create-db-entry', methods=['POST'])
 def create_db_entry():
@@ -392,11 +512,13 @@ def create_db_entry():
         query = f"""INSERT INTO Alliances (alliance_name) 
             VALUES ('{request.form.get('Name')}');"""
 
-    db.execute_query(db_connection=con, query=query)
-
-    message = 'Record Created!'
-
-    return render_template('status_message.j2', message=message)
+    message = 'Record created. Check the tables to see your hard earned entry!'
+    try:
+        db.execute_query(db_connection=con, query=query)
+    except:
+        message = "I honestly don't know what to tell you boss, that record was not created."
+    finally:
+        return render_template('status_message.j2', message=message)
 
 @app.route('/create-entry-form', methods=['POST', 'GET'])
 def create_entry_form():
@@ -421,7 +543,7 @@ def create_entry_form():
     pet_types = []
 
     # these aren't nested, they don't have their own queries because they are static
-    item_types = ['sword', 'armor']
+    item_types = ['weapon', 'armor']
     item_rarities = ['common', 'uncommon', 'rare', 'epic', 'legendary']
 
     if select == "Player":
@@ -472,13 +594,55 @@ def create_entry_form():
 
 @app.route('/display-alliances-guilds', methods=['GET', 'POST'])
 def display_alliances_guilds():
+    
+    # post route for actual relationship creation 
+    if request.method == "POST":
 
-    return render_template('alliances_guilds.j2')
+        alliance = request.form.get('Alliance')
+        guild = request.form.get('Guild')
+
+        message = "You trying out to be a cherub? Relationship created!"
+        
+        try:
+            query = f"""INSERT INTO Alliances_Guilds ( allianceID, guildID )
+                    VALUES ((SELECT Alliances.allianceID FROM Alliances 
+                    WHERE Alliances.alliance_name = '{alliance}'), 
+                    (SELECT Guilds.guildID FROM Guilds 
+                    WHERE Guilds.guild_name = '{guild}'));"""
+            
+            cur = db.execute_query(db_connection=con, query=query)
+
+        except:
+            message = f'Record already exists for {alliance} : {guild}, better luck next time champ!'
+        finally:
+            return render_template('status_message.j2', message=message)
+
+    headers = ['Alliance', 'Guild']
+
+    query = '''SELECT Alliances.alliance_name AS a_name, Guilds.guild_name AS g_name
+            FROM Alliances 
+            INNER JOIN Alliances_Guilds
+            ON Alliances_Guilds.allianceID = Alliances.allianceID
+            INNER JOIN Guilds
+            ON Alliances_Guilds.guildID = Guilds.guildID;'''
+
+    cur = db.execute_query(db_connection=con, query=query)
+    alliances_guilds = cur.fetchall()
+
+    query_guilds = '''SELECT Guilds.guild_name FROM Guilds;'''
+    cur = db.execute_query(db_connection=con, query=query_guilds)
+    guilds = cur.fetchall()
+
+    query_alliances = '''SELECT Alliances.alliance_name FROM Alliances;'''
+    cur = db.execute_query(db_connection=con, query=query_alliances)
+    alliances = cur.fetchall()
+
+    return render_template('alliances_guilds.j2', alliances_guilds=alliances_guilds, guilds=guilds, alliances=alliances, headers=headers)
 
 
 if __name__ == "__main__":
     
-    app.run(port=6754, debug=True)
+    app.run(port=6755, debug=True)
 
     # gunicorn -b 0.0.0.0:6754 -D app:app
     # pkill -u brocharg gunicorn
