@@ -1,3 +1,8 @@
+/* @font-face {
+    font-family: "";
+    src: url("") format("truetype");
+} */
+
 html {
     --background-color: #ffffff;
 }
@@ -114,6 +119,10 @@ table tbody tr:last-of-type {
     padding: 1em 1.5em;
     text-decoration: none;
     text-transform: uppercase;
+}
+
+.status-message {
+    text-align: center;
 }
 
 @media (max-width: 768px) {

@@ -53,15 +53,20 @@
                             <option value="{{ rarity }}">{{ rarity }}</option>
                         {% endfor %}
                     </select><br>
+            {% elif field == "Attack" %}
+                <label for="{{ field }}">{{ field }}</label>
+                <input type="number" id="{{ field }}" name="{{ field }}"><br>
+            {% elif field == "Defense" %}
+                <label for="{{ field }}">{{ field }}</label>
+                <input type="number" id="{{ field }}" name="{{ field }}"><br>
+            {% elif field == "Cost" %}
+                <label for="{{ field }}">{{ field }}</label>
+                <input type="number" id="{{ field }}" name="{{ field }}"><br>
             {% else %}
                 <label for="{{ field }}">{{ field }}</label>
                 <input type="text" id="{{ field }}" name="{{ field }}"><br>
             {% endif %}
         {% endfor %}
-        <select name="Rarity" class="select-form-control">
-                        {% for rarity in item_rarity %}
-                            <option value="{{ rarity }}">{{ rarity }}</option>
-                        {% endfor %}
-                    </select>
+        <input class="form-submit" type="submit" value="Create Record">
     </form>
 {% endblock entry_form %}
