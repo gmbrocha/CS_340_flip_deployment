@@ -642,7 +642,7 @@ def display_alliances_guilds():
 
 if __name__ == "__main__":
     
-    app.run(port=6755, debug=True)
+    app.run(port=60001, debug=True)
 
-    # gunicorn -b 0.0.0.0:6754 -D app:app
+    # gunicorn -b 0.0.0.0:60001 -D app:app
     # pkill -u brocharg gunicorn
