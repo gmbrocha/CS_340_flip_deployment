@@ -7,6 +7,7 @@
             {% if field == "Pet" %}
                     <span class="input-group-text">Pet</span>
                     <select name="Pet" class="select-form-control">
+                        <option value="NULL">None</option>
                         {% for pet in pets %}
                             <option value="{{ pet['pet_name'] }}">{{ pet['pet_name'] }}</option>
                         {% endfor %}
@@ -21,6 +22,7 @@
             {% elif field == "Weapon" %}
                 <span class="input-group-text">Weapon</span>
                     <select name="Weapon" class="select-form-control">
+                        <option value="NULL">None</option>
                         {% for weapon in weapons %}
                             <option value="{{ weapon['item_name'] }}">{{ weapon['item_name'] }}</option>
                         {% endfor %}
@@ -28,6 +30,7 @@
             {% elif field == "Armor" %}
                 <span class="input-group-text">Armor</span>
                     <select name="Armor" class="select-form-control">
+                        <option value="NULL">None</option>
                         {% for armor in armors %}
                             <option value="{{ armor['item_name'] }}">{{ armor['item_name'] }}</option>
                         {% endfor %}
@@ -35,6 +38,7 @@
             {% elif field == "Guild" %}
                 <span class="input-group-text">Guild</span>
                     <select name="Guild" class="select-form-control">
+                        <option value="NULL">None</option>
                         {% for guild in guilds %}
                             <option value="{{ guild['guild_name'] }}">{{ guild['guild_name'] }}</option>
                         {% endfor %}
