@@ -3,7 +3,7 @@ import database.db_connector as db
 
 # config
 app = Flask(__name__)
-con = db.connect_to_database(host='classmysql.engr.oregonstate.edu', user='cs340_brocharg', passwd='3063', db='cs340_brocharg')
+con = db.connect_to_database(host='classmysql.engr.oregonstate.edu', user='cs340_brocharg', passwd='', db='cs340_brocharg')
 
 
 # routes
