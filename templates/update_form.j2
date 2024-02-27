@@ -12,6 +12,8 @@
                     <select name="Pet" class="select-form-control">
                         {% if record_attr[0]['pet_name'] == None %}
                             <option value="None" selected>None</option>
+                        {% else %}
+                            <option value="NULL">None</option>
                         {% endif %}
                         {% for pet in pets %}
                             {% if pet['pet_name'] == record_attr[0]['pet_name'] %}
@@ -37,6 +39,8 @@
                     <select name="Weapon" class="select-form-control">
                         {% if record_attr[0]['weapon'] == None %}
                             <option value="None" selected>None</option>
+                        {% else %}
+                            <option value="NULL">None</option>
                         {% endif %}
                         {% for weapon in weapons %}
                             {% if weapon['item_name'] == record_attr[0]['weapon'] %}
@@ -51,6 +55,8 @@
                     <select name="Armor" class="select-form-control">
                         {% if record_attr[0]['armor'] == None %}
                             <option value="None" selected>None</option>
+                        {% else %}
+                            <option value="NULL">None</option>
                         {% endif %}
                         {% for armor in armors %}
                             {% if armor['item_name'] == record_attr[0]['armor'] %}
@@ -65,6 +71,8 @@
                     <select name="Guild" class="select-form-control">
                         {% if record_attr[0]['guild'] == None %}
                             <option value="None" selected>None</option>
+                        {% else %}
+                            <option value="NULL">None</option>
                         {% endif %}
                         {% for guild in guilds %}
                             {% if guild['guild_name'] == record_attr[0]['guild'] %}

@@ -177,6 +177,10 @@ def display_alliances():
 @app.route('/delete', methods=['POST', 'GET'])
 def delete_db_entry():
 
+    # if route is directly accessed via url, redirect to root
+    if request.method == 'GET':
+        return redirect(url_for('root'))
+
     select = request.form.get('delete-type')
     query = ''
     record = request.form.get('record')
@@ -202,8 +206,9 @@ def delete_db_entry():
     message = 'The answer to life the universe and everything: 42. Record deleted!'
     try:
         db.execute_query(db_connection=con, query=query)
-    except:
-        message = 'You think you can just delete things all willy nilly from this db? Check your keys, fool. Record NOT deleted!'
+    except Exception as e:
+        print(f'query failed execution; error: {str(e)}')
+        message = f"Error updating record: {str(e)}"
     finally:
         return render_template('status_message.j2', message=message)
 
@@ -211,10 +216,13 @@ def delete_db_entry():
 @app.route('/update', methods=['POST', 'GET'])
 def create_update_form():
 
+    # if route is directly accessed via url, redirect to root
+    if request.method == 'GET':
+        return redirect(url_for('root'))
+
     # get the update type and individual record from the form
     select = request.form.get('update-type')
     record_name = request.form.get('record')
-    # TODO ADDED FROM TODD
     old_name = record_name
 
     ability_query = 'SELECT ability_name FROM Special_Abilities;'
@@ -233,6 +241,7 @@ def create_update_form():
     guilds = []
     pet_types = []
     record_attr = []
+    query = ''
 
     # these aren't nested, they don't have their own queries because they are static
     item_types = ['sword', 'armor']
@@ -270,8 +279,6 @@ def create_update_form():
                 LEFT JOIN Items AS i2 ON Players.armorID = i2.itemID
                 LEFT JOIN Guilds ON Players.guildID = Guilds.guildID
                 WHERE Players.player_name = "{record_name}";'''
-        cur = db.execute_query(db_connection=con, query=query)
-        record_attr = cur.fetchall()
 
     if select == "Pet":
         fields = ['Name', 'Ability', 'Pet Type', 'Attack', 'Defense']
@@ -289,8 +296,6 @@ def create_update_form():
                 FROM Pets 
                 LEFT JOIN Special_Abilities ON Special_Abilities.abilityID = Pets.pet_abilityID
                 WHERE Pets.pet_name = "{record_name}";'''
-        cur = db.execute_query(db_connection=con, query=query)
-        record_attr = cur.fetchall()
 
     if select == "Ability":
         fields = ['Name', 'Attack', 'Cost']
@@ -299,8 +304,6 @@ def create_update_form():
                 Special_Abilities.ability_cost AS cost
                 FROM Special_Abilities
                 WHERE Special_Abilities.ability_name = "{record_name}";'''
-        cur = db.execute_query(db_connection=con, query=query)
-        record_attr = cur.fetchall()
 
     if select == "Item":
         fields = ['Name', 'Item Type', 'Defense', 'Attack', 'Rarity']
@@ -309,8 +312,6 @@ def create_update_form():
                 Items.item_attack AS attack, Items.item_rarity AS rarity 
                 FROM Items
                 WHERE Items.item_name = "{record_name}";'''
-        cur = db.execute_query(db_connection=con, query=query)
-        record_attr = cur.fetchall()
 
     if select == "Guild":
         fields = ['Name', 'Color']
@@ -318,8 +319,6 @@ def create_update_form():
         query = f'''SELECT Guilds.guild_name AS g_name, Guilds.guild_color AS color
                 FROM Guilds
                 WHERE Guilds.guild_name = "{record_name}";'''
-        cur = db.execute_query(db_connection=con, query=query)
-        record_attr = cur.fetchall()
 
     if select == "Alliance":
         fields = ['Name']
@@ -327,12 +326,17 @@ def create_update_form():
         query = f'''SELECT Alliances.alliance_name AS a_name
                 FROM Alliances
                 WHERE Alliances.alliance_name = "{record_name}";'''
+
+    try:
         cur = db.execute_query(db_connection=con, query=query)
         record_attr = cur.fetchall()
-
-    return render_template('update_form.j2', record_attr=record_attr, name=record_name, select_type=select, fields=fields, abilities=abilities, pets=pets,
-                           weapons=weapons, armors=armors, item_types=item_types, guilds=guilds,
-                           item_rarity=item_rarities, pet_types=pet_types, old_name=old_name)
+    except Exception as e:
+        print(f'query failed execution; error: {str(e)}')
+    finally:
+        return render_template('update_form.j2', record_attr=record_attr, name=record_name, select_type=select,
+                               fields=fields, abilities=abilities, pets=pets,
+                               weapons=weapons, armors=armors, item_types=item_types, guilds=guilds,
+                               item_rarity=item_rarities, pet_types=pet_types, old_name=old_name)
 
 
 @app.route('/update-db', methods=['POST', 'GET'])
@@ -448,6 +452,7 @@ def update_db_entry():
             db.execute_query(db_connection=con, query=query)
             message = 'Record Updated!'
         except Exception as e:
+            print(f'query failed execution; error: {str(e)}')
             message = f"Error updating record: {str(e)}"
         return render_template('status_message.j2', message=message)
     else:
@@ -484,7 +489,6 @@ def create_db_entry():
             (SELECT guildID FROM Guilds WHERE guild_name = "{values[5]}"));'''
 
     if select == 'Pet':
-        # todo validate the attack and defense to be integers
         fields = ['Name', 'Ability', 'Pet Type', 'Attack', 'Defense']
         for i in range(len(fields)):
             values.append(request.form.get(fields[i]))
@@ -493,7 +497,6 @@ def create_db_entry():
             "{values[2]}", {int(values[3])}, {int(values[4])});'''
 
     if select == 'Ability':
-        # todo validate the attack and cost to be integers
         fields = ['Name', 'Attack', 'Cost']
         for i in range(len(fields)):
             values.append(request.form.get(fields[i]))
@@ -501,7 +504,6 @@ def create_db_entry():
             VALUES ("{values[0]}", {int(values[1])}, {int(values[2])});'''
 
     if select == 'Item':
-        # todo validate the defense and attack to be integers
         fields = ['Name', 'Item Type', 'Defense', 'Attack', 'Rarity']
         for i in range(len(fields)):
             values.append(request.form.get(fields[i]))
@@ -509,7 +511,6 @@ def create_db_entry():
             VALUES ("{values[0]}", "{values[1]}", {int(values[2])}, {int(values[3])}, "{values[4]}");'''
 
     if select == 'Guild':
-        # todo validate the color entry to be an integer
         fields = ['Name', 'Color']
         for i in range(len(fields)):
             values.append(request.form.get(fields[i]))
@@ -525,8 +526,8 @@ def create_db_entry():
     try:
         db.execute_query(db_connection=con, query=query)
     except Exception as e:
-        print(f'error creating record: {values[0]}; error: {str(e)}')
-        message = "I honestly don't know what to tell you boss, that record was not created."
+        print(f'query failed execution; error: {str(e)}')
+        message = f"Error updating record: {str(e)}"
     finally:
         return render_template('status_message.j2', message=message)
 
@@ -542,11 +543,11 @@ def create_entry_form():
     select = request.form.get('entry-type')
 
     # initial query definitions for dropdown population
-    ability_query = "SELECT `ability_name` FROM `Special_Abilities`;"
-    pet_query = "SELECT `pet_name` FROM `Pets`;"
-    weapon_query = "SELECT `item_name` FROM `Items` WHERE `item_type` = 'weapon';"
-    armor_query = "SELECT `item_name` FROM `Items` WHERE `item_type` ='armor';"
-    guild_query = "SELECT `guild_name` FROM `Guilds`;"
+    ability_query = 'SELECT ability_name FROM Special_Abilities;'
+    pet_query = 'SELECT pet_name FROM Pets;'
+    weapon_query = 'SELECT item_name FROM Items WHERE item_type = "weapon";'
+    armor_query = 'SELECT item_name FROM Items WHERE item_type = "armor";'
+    guild_query = 'SELECT guild_name FROM Guilds;'
 
     # create empty queries for cases that the attribute isn't necessary
     fields = []
@@ -619,15 +620,16 @@ def display_alliances_guilds():
         message = "You trying out to be a cherub? Relationship created!"
         
         try:
-            query = f"""INSERT INTO Alliances_Guilds ( allianceID, guildID )
+            query = f'''INSERT INTO Alliances_Guilds ( allianceID, guildID )
                     VALUES ((SELECT Alliances.allianceID FROM Alliances 
-                    WHERE Alliances.alliance_name = '{alliance}'), 
+                    WHERE Alliances.alliance_name = "{alliance}"), 
                     (SELECT Guilds.guildID FROM Guilds 
-                    WHERE Guilds.guild_name = '{guild}'));"""
-            
-            cur = db.execute_query(db_connection=con, query=query)
+                    WHERE Guilds.guild_name = "{guild}"));'''
 
-        except:
+            db.execute_query(db_connection=con, query=query)
+
+        except Exception as e:
+            print(f'query execution failed; error: {str(e)}')
             message = f'Record already exists for {alliance} : {guild}, better luck next time champ!'
         finally:
             return render_template('status_message.j2', message=message)
@@ -644,11 +646,11 @@ def display_alliances_guilds():
     cur = db.execute_query(db_connection=con, query=query)
     alliances_guilds = cur.fetchall()
 
-    query_guilds = '''SELECT Guilds.guild_name FROM Guilds;'''
+    query_guilds = 'SELECT Guilds.guild_name FROM Guilds;'
     cur = db.execute_query(db_connection=con, query=query_guilds)
     guilds = cur.fetchall()
 
-    query_alliances = '''SELECT Alliances.alliance_name FROM Alliances;'''
+    query_alliances = 'SELECT Alliances.alliance_name FROM Alliances;'
     cur = db.execute_query(db_connection=con, query=query_alliances)
     alliances = cur.fetchall()
 
