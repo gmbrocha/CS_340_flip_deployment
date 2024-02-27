@@ -1,5 +1,6 @@
 import MySQLdb
 
+
 def connect_to_database(host, user, passwd, db):
     '''
     connects to a database and returns a database objects
@@ -7,17 +8,15 @@ def connect_to_database(host, user, passwd, db):
     db_connection = MySQLdb.connect(host,user,passwd,db)
     return db_connection
 
+
 def execute_query(db_connection = None, query = None, query_params = ()):
-    '''
-    executes a given SQL query on the given db connection and returns a Cursor object
+    """executes a given SQL query on the given db connection and returns a Cursor object
 
     db_connection: a MySQLdb connection object created by connect_to_database()
     query: string containing SQL query
 
     returns: A Cursor object as specified at https://www.python.org/dev/peps/pep-0249/#cursor-objects.
-    You need to run .fetchall() or .fetchone() on that object to actually acccess the results.
-
-    '''
+    You need to run .fetchall() or .fetchone() on that object to actually acccess the results."""
 
     if db_connection is None:
         print("No connection to the database found! Have you called connect_to_database() first?")
@@ -37,7 +36,7 @@ def execute_query(db_connection = None, query = None, query_params = ()):
     for q in query_params:
         params = params + (q)
     '''
-    #TODO: Sanitize the query before executing it!!!
+    # TODO: Sanitize the query before executing it!!!
     cursor.execute(query, query_params)
     # this will actually commit any changes to the database. without this no
     # changes will be committed!

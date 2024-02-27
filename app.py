@@ -1,9 +1,9 @@
-from flask import Flask, render_template, url_for, request
+from flask import Flask, render_template, url_for, request, redirect
 import database.db_connector as db
 
 # config
 app = Flask(__name__)
-con = db.connect_to_database(host = 'classmysql.engr.oregonstate.edu', user = 'cs340_brocharg', passwd = '3063', db = 'cs340_brocharg')
+con = db.connect_to_database(host='classmysql.engr.oregonstate.edu', user='cs340_brocharg', passwd='3063', db='cs340_brocharg')
 
 
 # routes
@@ -16,14 +16,14 @@ def root():
 @app.route('/players', methods=['POST', 'GET'])
 def display_players():
     
-    query = 'SELECT Players.player_name AS name, Special_Abilities.ability_name AS ability, ' \
-        'Pets.pet_name AS pet, i.item_name AS weapon, i2.item_name AS armor, Guilds.guild_name AS guild ' \
-        'FROM Players ' \
-        'LEFT JOIN Special_Abilities ON Players.player_abilityID = Special_Abilities.abilityID ' \
-        'LEFT JOIN Pets ON Players.petID = Pets.petID ' \
-        'LEFT JOIN Items AS i ON Players.weaponID = i.itemID ' \
-        'LEFT JOIN Items AS i2 ON Players.armorID = i2.itemID ' \
-        'LEFT JOIN Guilds ON Players.guildID = Guilds.guildID ' \
+    query = '''SELECT Players.player_name AS name, Special_Abilities.ability_name AS ability,
+        Pets.pet_name AS pet, i.item_name AS weapon, i2.item_name AS armor, Guilds.guild_name AS guild
+        FROM Players
+        LEFT JOIN Special_Abilities ON Players.player_abilityID = Special_Abilities.abilityID
+        LEFT JOIN Pets ON Players.petID = Pets.petID
+        LEFT JOIN Items AS i ON Players.weaponID = i.itemID
+        LEFT JOIN Items AS i2 ON Players.armorID = i2.itemID
+        LEFT JOIN Guilds ON Players.guildID = Guilds.guildID'''
     
     headers = ['Name', 'Ability', 'Pet', 'Weapon', 'Armor', 'Guild']  # the headers for display in the table
 
@@ -37,12 +37,12 @@ def display_players():
 @app.route('/pets', methods=['POST', 'GET'])
 def display_pets():
 
-    query = 'SELECT Pets.pet_name AS name, ' \
-            'Special_Abilities.ability_name AS ability, ' \
-            'Pets.pet_type AS type, Pets.pet_attack AS attack, ' \
-            'Pets.pet_defense AS defense ' \
-            'FROM Pets INNER JOIN Special_Abilities ' \
-            'ON Pets.pet_abilityID = Special_Abilities.abilityID;'
+    query = '''SELECT Pets.pet_name AS name,
+            Special_Abilities.ability_name AS ability,
+            Pets.pet_type AS type, Pets.pet_attack AS attack,
+            Pets.pet_defense AS defense
+            FROM Pets INNER JOIN Special_Abilities
+            ON Pets.pet_abilityID = Special_Abilities.abilityID;'''
 
     headers = ['Name', 'Ability', 'Type', 'Attack', 'Defense']  # the headers for display in the table
 
@@ -56,10 +56,10 @@ def display_pets():
 @app.route('/abilities', methods=['POST', 'GET'])
 def display_abilities():
 
-    query = 'SELECT Special_Abilities.ability_name AS name, ' \
-            'Special_Abilities.ability_attack AS attack, ' \
-            'Special_Abilities.ability_cost AS cost ' \
-            'FROM Special_Abilities;'
+    query = '''SELECT Special_Abilities.ability_name AS name,
+            Special_Abilities.ability_attack AS attack,
+            Special_Abilities.ability_cost AS cost
+            FROM Special_Abilities;'''
 
     headers = ['Name', 'Attack', 'Cost']  # the headers for display in the table
 
@@ -73,12 +73,12 @@ def display_abilities():
 @app.route('/items', methods=['POST', 'GET'])
 def display_items():
 
-    query = 'SELECT Items.item_name AS name, ' \
-                'Items.item_type AS type, ' \
-                'Items.item_defense AS defense,' \
-                'Items.item_attack AS attack,' \
-                'Items.item_rarity AS rarity ' \
-                'FROM Items;'
+    query = '''SELECT Items.item_name AS name,
+                Items.item_type AS type,
+                Items.item_defense AS defense,
+                Items.item_attack AS attack,
+                Items.item_rarity AS rarity
+                FROM Items;'''
 
     headers = ['Name', 'Type', 'Defense', 'Attack', 'Rarity']  # the headers for display in the table
 
@@ -92,8 +92,8 @@ def display_items():
 @app.route('/guilds', methods=['POST', 'GET'])
 def display_guilds():
 
-    query = """SELECT Guilds.guild_name AS name, Guilds.guild_color AS color
-            FROM Guilds"""
+    query = '''SELECT Guilds.guild_name AS name, Guilds.guild_color AS color
+            FROM Guilds'''
 
     cur = db.execute_query(db_connection=con, query=query)
 
@@ -136,8 +136,8 @@ def display_guilds():
 @app.route('/alliances', methods=['POST', 'GET'])
 def display_alliances():
 
-    query = 'SELECT Alliances.alliance_name AS name ' \
-            'FROM Alliances'
+    query = '''SELECT Alliances.alliance_name AS name
+            FROM Alliances'''
 
     cur = db.execute_query(db_connection=con, query=query)
 
@@ -153,12 +153,12 @@ def display_alliances():
 
     for alliance in alliances_names:
         guilds = []
-        query = f"""SELECT Guilds.guild_name AS name FROM Guilds
+        query = f'''SELECT Guilds.guild_name AS name FROM Guilds
                 JOIN Alliances_Guilds
                 ON Alliances_Guilds.guildID = Guilds.guildID
                 JOIN Alliances
                 ON Alliances_Guilds.allianceID = Alliances.allianceID
-                WHERE Alliances.alliance_name = '{alliance}';"""
+                WHERE Alliances.alliance_name = "{alliance}";'''
         cur = db.execute_query(db_connection=con, query=query)
         results = cur.fetchall()
 
@@ -217,12 +217,12 @@ def create_update_form():
     # TODO ADDED FROM TODD
     old_name = record_name
 
-    ability_query = "SELECT `ability_name` FROM `Special_Abilities`;"
-    pet_query = "SELECT `pet_name` FROM `Pets`;"
-    weapon_query = "SELECT `item_name` FROM `Items` WHERE `item_type` = 'weapon';"
-    armor_query = "SELECT `item_name` FROM `Items` WHERE `item_type` ='armor';"
-    guild_query = "SELECT `guild_name` FROM `Guilds`;"
-    pet_types_query = "SELECT DISTINCT `pet_type` FROM `Pets`;"
+    ability_query = 'SELECT ability_name FROM Special_Abilities;'
+    pet_query = 'SELECT pet_name FROM Pets;'
+    weapon_query = 'SELECT item_name FROM Items WHERE item_type = "weapon";'
+    armor_query = 'SELECT item_name FROM Items WHERE item_type ="armor";'
+    guild_query = 'SELECT guild_name FROM Guilds;'
+    pet_types_query = 'SELECT DISTINCT pet_type FROM Pets;'
 
     # create empty queries for cases that the attribute isn't necessary
     fields = []
@@ -232,6 +232,7 @@ def create_update_form():
     armors = []
     guilds = []
     pet_types = []
+    record_attr = []
 
     # these aren't nested, they don't have their own queries because they are static
     item_types = ['sword', 'armor']
@@ -260,7 +261,7 @@ def create_update_form():
         cur = db.execute_query(db_connection=con, query=guild_query)
         guilds = cur.fetchall()
 
-        query = f"""SELECT Players.player_name AS pl_name, Special_Abilities.ability_name AS ability, 
+        query = f'''SELECT Players.player_name AS pl_name, Special_Abilities.ability_name AS ability, 
                 Pets.pet_name AS pet_name, i.item_name AS weapon, i2.item_name AS armor, Guilds.guild_name AS guild
                 FROM Players 
                 LEFT JOIN Special_Abilities ON Special_Abilities.abilityID = Players.player_abilityID
@@ -268,7 +269,7 @@ def create_update_form():
                 LEFT JOIN Items AS i ON Players.weaponID = i.itemID
                 LEFT JOIN Items AS i2 ON Players.armorID = i2.itemID
                 LEFT JOIN Guilds ON Players.guildID = Guilds.guildID
-                WHERE Players.player_name = '{record_name}';"""
+                WHERE Players.player_name = "{record_name}";'''
         cur = db.execute_query(db_connection=con, query=query)
         record_attr = cur.fetchall()
 
@@ -283,21 +284,21 @@ def create_update_form():
         cur = db.execute_query(db_connection=con, query=pet_types_query)
         pet_types = cur.fetchall()
 
-        query = f"""SELECT Pets.pet_name AS pt_name, Special_Abilities.ability_name AS ability, 
+        query = f'''SELECT Pets.pet_name AS pt_name, Special_Abilities.ability_name AS ability, 
                 Pets.pet_type, Pets.pet_attack AS attack, Pets.pet_defense AS defense
                 FROM Pets 
                 LEFT JOIN Special_Abilities ON Special_Abilities.abilityID = Pets.pet_abilityID
-                WHERE Pets.pet_name = '{record_name}';"""
+                WHERE Pets.pet_name = "{record_name}";'''
         cur = db.execute_query(db_connection=con, query=query)
         record_attr = cur.fetchall()
 
     if select == "Ability":
         fields = ['Name', 'Attack', 'Cost']
 
-        query = f"""SELECT Special_Abilities.ability_name AS ab_name, Special_Abilities.ability_attack AS attack,
+        query = f'''SELECT Special_Abilities.ability_name AS ab_name, Special_Abilities.ability_attack AS attack,
                 Special_Abilities.ability_cost AS cost
                 FROM Special_Abilities
-                WHERE Special_Abilities.ability_name = '{record_name}';"""
+                WHERE Special_Abilities.ability_name = "{record_name}";'''
         cur = db.execute_query(db_connection=con, query=query)
         record_attr = cur.fetchall()
 
@@ -333,15 +334,19 @@ def create_update_form():
                            weapons=weapons, armors=armors, item_types=item_types, guilds=guilds,
                            item_rarity=item_rarities, pet_types=pet_types, old_name=old_name)
 
+
 @app.route('/update-db', methods=['POST', 'GET'])
 def update_db_entry():
-    
-    ############################
-    # CODE BELOW ADDED BY TODD #
-    ############################
+
+    # if route is directly accessed via url, redirect to root
+    if request.method == 'GET':
+        return redirect(url_for('root'))
+
+    ##################################
+    # CODE BELOW ADDED BY LOGAN TODD #
+    ##################################
 
     if request.method == 'POST':
-        record_name = request.form.get('record')
         select = request.form.get('select-type')
 
         # Retrieve all form data
@@ -360,14 +365,14 @@ def update_db_entry():
             new_armor = request.form.get('Armor')
             new_guild = request.form.get('Guild')
 
-            query = f"""UPDATE Players 
-                        SET player_name = '{new_name}',
-                        player_abilityID = (SELECT abilityID FROM Special_Abilities WHERE ability_name = '{new_ability}'),
-                        petID = (SELECT petID FROM Pets WHERE pet_name = '{new_pet}'),
-                        weaponID = (SELECT itemID FROM Items WHERE item_name = '{new_weapon}'),
-                        armorID = (SELECT itemID FROM Items WHERE item_name = '{new_armor}'),
-                        guildID = (SELECT guildID FROM Guilds WHERE guild_name = '{new_guild}')
-                        WHERE player_name = '{old_name}';"""  # Update based on old name
+            query = f'''UPDATE Players 
+                        SET player_name = "{new_name}",
+                        player_abilityID = (SELECT abilityID FROM Special_Abilities WHERE ability_name = "{new_ability}"),
+                        petID = (SELECT petID FROM Pets WHERE pet_name = "{new_pet}"),
+                        weaponID = (SELECT itemID FROM Items WHERE item_name = "{new_weapon}"),
+                        armorID = (SELECT itemID FROM Items WHERE item_name = "{new_armor}"),
+                        guildID = (SELECT guildID FROM Guilds WHERE guild_name = "{new_guild}")
+                        WHERE player_name = "{old_name}";'''  # Update based on old name
 
         elif select == 'Pet':
             # Retrieve all form fields
@@ -378,13 +383,13 @@ def update_db_entry():
             new_defense = request.form.get('Defense')
 
             # Construct the update query for Pet
-            query = f"""UPDATE Pets 
-                        SET pet_name = '{new_name}',
-                        pet_abilityID = (SELECT abilityID FROM Special_Abilities WHERE ability_name = '{new_ability}'),
-                        pet_type = '{new_type}',
+            query = f'''UPDATE Pets 
+                        SET pet_name = "{new_name}",
+                        pet_abilityID = (SELECT abilityID FROM Special_Abilities WHERE ability_name = "{new_ability}"),
+                        pet_type = "{new_type}",
                         pet_attack = {int(new_attack)},
                         pet_defense = {int(new_defense)}
-                        WHERE pet_name = '{old_name}';"""
+                        WHERE pet_name = "{old_name}";'''
 
         elif select == 'Ability':
             # Retrieve all form fields
@@ -393,11 +398,11 @@ def update_db_entry():
             new_cost = request.form.get('Cost')
 
             # Construct the update query for Ability
-            query = f"""UPDATE Special_Abilities 
-                        SET ability_name = '{new_name}',
+            query = f'''UPDATE Special_Abilities 
+                        SET ability_name = "{new_name}",
                         ability_attack = {int(new_attack)},
                         ability_cost = {int(new_cost)}
-                        WHERE ability_name = '{old_name}';"""
+                        WHERE ability_name = "{old_name}";'''
 
         elif select == 'Item':
             # Retrieve all form fields
@@ -408,13 +413,13 @@ def update_db_entry():
             new_rarity = request.form.get('Rarity')
 
             # Construct the update query for Item
-            query = f"""UPDATE Items 
-                        SET item_name = '{new_name}',
-                        item_type = '{new_type}',
+            query = f'''UPDATE Items 
+                        SET item_name = "{new_name}",
+                        item_type = "{new_type}",
                         item_defense = {int(new_defense)},
                         item_attack = {int(new_attack)},
-                        item_rarity = '{new_rarity}'
-                        WHERE item_name = '{old_name}';"""
+                        item_rarity = "{new_rarity}"
+                        WHERE item_name = "{old_name}";'''
 
         elif select == 'Guild':
             # Retrieve all form fields
@@ -422,19 +427,19 @@ def update_db_entry():
             new_color = request.form.get('Color')
 
             # Construct the update query for Guild
-            query = f"""UPDATE Guilds 
-                        SET guild_name = '{new_name}',
+            query = f'''UPDATE Guilds 
+                        SET guild_name = "{new_name}",
                         guild_color = {int(new_color)}
-                        WHERE guild_name = '{old_name}';"""
+                        WHERE guild_name = "{old_name}";'''
 
         elif select == 'Alliance':
             # Retrieve all form fields
             new_name = request.form.get('Name')
 
             # Construct the update query for Alliance
-            query = f"""UPDATE Alliances 
-                        SET alliance_name = '{new_name}'
-                        WHERE alliance_name = '{old_name}';"""
+            query = f'''UPDATE Alliances 
+                        SET alliance_name = "{new_name}"
+                        WHERE alliance_name = "{old_name}";'''
 
         # Add conditions for other select types (Ability, Item, Guild, Alliance) similarly
 
@@ -446,16 +451,20 @@ def update_db_entry():
             message = f"Error updating record: {str(e)}"
         return render_template('status_message.j2', message=message)
     else:
-        select = request.form.get('select-type')
         message = "Invalid select type"
         return render_template('status_message.j2', message=message)
 
-    #################################
-    # TODO CODE ABOVE ADDED BY TODD #
-    #################################
+    ##################################
+    # CODE ABOVE ADDED BY LOGAN TODD #
+    ##################################
 
-@app.route('/create-db-entry', methods=['POST'])
+
+@app.route('/create-db-entry', methods=['POST', 'GET'])
 def create_db_entry():
+
+    # if route is directly accessed via url, redirect to root
+    if request.method == 'GET':
+        return redirect(url_for('root'))
 
     query = ''
     values = []
@@ -467,61 +476,67 @@ def create_db_entry():
         for i in range(len(fields)):
             values.append(request.form.get(fields[i]))
 
-        query = f"""INSERT INTO Players (player_name, player_abilityID, petID, weaponID, armorID, guildID)  
-            VALUES ('{values[0]}', (SELECT abilityID FROM Special_Abilities WHERE ability_name = '{values[1]}'),
-            (SELECT petID FROM Pets WHERE pet_name = '{values[2]}'),
-            (SELECT itemID FROM Items WHERE item_name = '{values[3]}'), 
-            (SELECT itemID FROM Items WHERE item_name = '{values[4]}'), 
-            (SELECT guildID FROM Guilds WHERE guild_name = '{values[5]}'));"""
+        query = f'''INSERT INTO Players (player_name, player_abilityID, petID, weaponID, armorID, guildID)  
+            VALUES ("{values[0]}", (SELECT abilityID FROM Special_Abilities WHERE ability_name = "{values[1]}"),
+            (SELECT petID FROM Pets WHERE pet_name = "{values[2]}"),
+            (SELECT itemID FROM Items WHERE item_name = "{values[3]}"), 
+            (SELECT itemID FROM Items WHERE item_name = "{values[4]}"), 
+            (SELECT guildID FROM Guilds WHERE guild_name = "{values[5]}"));'''
 
     if select == 'Pet':
         # todo validate the attack and defense to be integers
         fields = ['Name', 'Ability', 'Pet Type', 'Attack', 'Defense']
         for i in range(len(fields)):
             values.append(request.form.get(fields[i]))
-        query = f"""INSERT INTO Pets (pet_name, pet_abilityID, pet_type, pet_attack, pet_defense) 
-            VALUES ('{values[0]}', (SELECT abilityID FROM Special_Abilities WHERE ability_name = '{values[1]}'), 
-            '{values[2]}', {int(values[3])}, {int(values[4])});"""
+        query = f'''INSERT INTO Pets (pet_name, pet_abilityID, pet_type, pet_attack, pet_defense) 
+            VALUES ("{values[0]}", (SELECT abilityID FROM Special_Abilities WHERE ability_name = "{values[1]}"), 
+            "{values[2]}", {int(values[3])}, {int(values[4])});'''
 
     if select == 'Ability':
         # todo validate the attack and cost to be integers
         fields = ['Name', 'Attack', 'Cost']
         for i in range(len(fields)):
             values.append(request.form.get(fields[i]))
-        query = f"""INSERT INTO Special_Abilities (ability_name, ability_attack, ability_cost) 
-            VALUES ('{values[0]}', {int(values[1])}, {int(values[2])});"""
+        query = f'''INSERT INTO Special_Abilities (ability_name, ability_attack, ability_cost) 
+            VALUES ("{values[0]}", {int(values[1])}, {int(values[2])});'''
 
     if select == 'Item':
         # todo validate the defense and attack to be integers
         fields = ['Name', 'Item Type', 'Defense', 'Attack', 'Rarity']
         for i in range(len(fields)):
             values.append(request.form.get(fields[i]))
-        query = f"""INSERT INTO Items (item_name, item_type, item_defense, item_attack, item_rarity) 
-            VALUES ('{values[0]}', '{values[1]}', {int(values[2])}, {int(values[3])}, '{values[4]}');"""
+        query = f'''INSERT INTO Items (item_name, item_type, item_defense, item_attack, item_rarity) 
+            VALUES ("{values[0]}", "{values[1]}", {int(values[2])}, {int(values[3])}, "{values[4]}");'''
 
     if select == 'Guild':
         # todo validate the color entry to be an integer
         fields = ['Name', 'Color']
         for i in range(len(fields)):
             values.append(request.form.get(fields[i]))
-        query = f"""INSERT INTO Guilds (guild_name, guild_color) 
-            VALUES ('{values[0]}', {int(values[1])});"""
+        query = f'''INSERT INTO Guilds (guild_name, guild_color) 
+            VALUES ("{values[0]}", {int(values[1])});'''
 
     if select == 'Alliance':
         # only 1 value in the return form here, just put it in the query
-        query = f"""INSERT INTO Alliances (alliance_name) 
-            VALUES ('{request.form.get('Name')}');"""
+        query = f'''INSERT INTO Alliances (alliance_name) 
+            VALUES ("{request.form.get("Name")}");'''
 
     message = 'Record created. Check the tables to see your hard earned entry!'
     try:
         db.execute_query(db_connection=con, query=query)
-    except:
+    except Exception as e:
+        print(f'error creating record: {values[0]}; error: {str(e)}')
         message = "I honestly don't know what to tell you boss, that record was not created."
     finally:
         return render_template('status_message.j2', message=message)
 
+
 @app.route('/create-entry-form', methods=['POST', 'GET'])
 def create_entry_form():
+
+    # if entry type empty - as in user supplies no type
+    if request.method == "GET":
+        return redirect(url_for('root'))
 
     # get the entry type from the form dropdown
     select = request.form.get('entry-type')
@@ -575,7 +590,7 @@ def create_entry_form():
         cur = db.execute_query(db_connection=con, query=ability_query)
         abilities = cur.fetchall()
 
-    if select =="Ability":
+    if select == "Ability":
         fields = ['Name', 'Attack', 'Cost']
 
     if select == "Item":
