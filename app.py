@@ -14,7 +14,8 @@ def root():
 
 @app.route('/players', methods=['POST', 'GET'])
 def display_players():
-        
+
+    # connections put inside routes to fix timeout    
     con = db.connect_to_database(host='classmysql.engr.oregonstate.edu', user='cs340_brocharg', passwd='3063', db='cs340_brocharg')
 
     query = '''SELECT Players.player_name AS name, Special_Abilities.ability_name AS ability,
