@@ -1,0 +1,68 @@
+{% extends 'main.j2' %}
+
+{% block guilds_display %}
+    <h3 style="text-align: center;">Guilds</h3>
+    <div class="table-display">
+        <table>
+            <thead>
+                <tr>
+                    {% for header in headers %}
+                        {% if header == "Alliances" %}
+                            <th colspan="{{ max_members }}" style="text-align: center">
+                                {{ header }}
+                            </th>
+                        {% else %}
+                            <th>
+                                {{ header }}
+                            </th>
+                        {% endif %}
+                    {% endfor %}
+                    <th colspan="2"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, value in guilds_dict.items() %}
+                    <tr>
+                        <td style="font-weight: bold">{{ key }}</td>
+                        <td>
+                            {{ value[0] }}
+                        </td>
+                        {% for i in range(max_members) %}
+                            {% if value[1][0] == '' and i == 0 %}
+                                <td>
+                                    None
+                                </td>
+                            {% else %}
+                                <td>
+                                    {{ value[1][i] }}
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                        <td>
+                            <form class="update-player" method="POST" action="{{ url_for('create_update_form') }}">
+                                <input type="hidden" name="update-type" value="Guild" />
+                                <input type="hidden" name="record" value="{{ key }}" />
+                                <input type="submit" name="update" value="Update" />
+                            </form>
+                        </td>
+                        <td>
+                            <form class="delete-button" method="POST" action="{{ url_for('delete_db_entry') }}">
+                                <input type="hidden" name="delete-type" value="Guild" />
+                                <input type="hidden" name="record" value="{{ key }}" />
+                                <input type="submit" name="delete" value="Delete" />
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <hr>
+    <br>
+        <p style="text-align: center; padding: 15px;">
+            Need to edit a guild-alliance relationship? Use this instead.
+        </p>
+    <div class="nav-buttons">
+        <a href="{{ url_for('display_alliances_guilds') }}">Edit Relationships</a>
+    </div>
+{% endblock guilds_display %}

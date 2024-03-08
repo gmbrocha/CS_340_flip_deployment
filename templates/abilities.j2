@@ -1,0 +1,45 @@
+{% extends 'main.j2' %}
+
+{% block abilities_display %}
+    <h3 style="text-align: center">Abilities</h3>
+    <div style="text-align: center; display: flex; justify-content: center;">
+        <table>
+            <thead>
+                <tr style="text-align: center;">
+                    {% for el in headers %}  {# get header row setup #}
+                        <th>
+                            {{ el }}
+                        </th>
+                    {% endfor %}
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for el in results %}  {# iterate the entity object - each el is a (3) tuple #}
+                    <tr>
+                        {% for i in range(3) %}  {# iterate the individual ability tuple #}
+                            <td>
+                                {{ el[headers[i].lower()] }}
+                            </td>
+                        {% endfor %}
+                        <td>
+                            <form class="update-player" method="POST" action="{{ url_for('create_update_form') }}">
+                                <input type="hidden" name="update-type" value="Ability" />
+                                <input type="hidden" name="record" value="{{ el['name'] }}" />
+                                <input type="submit" name="update" value="Update" />
+                            </form>
+                        </td>
+                        <td>
+                            <form class="delete-button" method="POST" action="{{ url_for('delete_db_entry') }}">
+                                <input type="hidden" name="delete-type" value="Ability" />
+                                <input type="hidden" name="record" value="{{ el['name'] }}" />
+                                <input type="submit" name="delete" value="Delete" />
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock abilities_display %}

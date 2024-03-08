@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FantasyGame Armory</title>
+    <link rel="stylesheet" href="static/css/style.css" />
+</head>
+<body>
+    <div class="body-container">
+        <div id="app-header">
+            <h1>FantasyGame Armory</h1>
+        </div>
+        <div id="app-header">
+            <h2>the most <span style="font-style: italic">extensive</span> database for FantasyGame</h2>
+        </div>
+        <h3 style="padding: 10px;">
+            View tables here:
+        </h3>
+        <div class="nav-buttons" style="padding: 10px;">
+            <a href="{{ url_for('display_players') }}">Players</a>
+            <a href="{{ url_for('display_pets') }}">Pets</a>
+            <a href="{{ url_for('display_abilities') }}">Abilities</a>
+            <a href="{{ url_for('display_items') }}">Items</a>
+            <a href="{{ url_for('display_guilds') }}">Guilds</a>
+            <a href="{{ url_for('display_alliances') }}">Alliances</a>
+        </div>
+        <br>
+        <hr>
+        <div>
+            <form class="entry-menu" method="POST" action="{{ url_for('create_entry_form') }}">
+                <div class="dropdown-group" style="padding: 10px">
+                        <h3 style="padding: 0;">Select and create record here:</h3>
+                            <select name="entry-type" class="select-form-control">
+                                <option value="Player">Player</option>
+                                <option value="Pet">Pet</option>
+                                <option value="Ability">Ability</option>
+                                <option value="Item">Item</option>
+                                <option value="Guild">Guild</option>
+                                <option value="Alliance">Alliance</option>
+                            </select>
+                    <button type="submit" class="submit-button">Go</button>
+                </div>
+            </form>
+        </div>
+        <hr>
+    </div>
+    <div class="element-display">
+        {% block player_display %}{% endblock player_display %}
+        {% block pets_display %}{% endblock pets_display %}
+        {% block abilities_display %}{% endblock abilities_display %}
+        {% block items_display %}{% endblock items_display %}
+        {% block guilds_display %}{% endblock guilds_display %}
+        {% block alliances_display %}{% endblock alliances_display %}
+        {% block entry_form %}{% endblock entry_form %}
+        {% block update_form %}{% endblock update_form %}
+        {% block status_message %}{% endblock status_message %}
+        {% block alliances_guilds %}{% endblock alliances_guilds %}
+        {% block alliances_dropdown %}{% endblock alliances_dropdown %}
+    </div>
+    <div class="copyright-display">
+        <p>&#169; Team Glizzy</p>
+    </div>
+</body>
+</html>

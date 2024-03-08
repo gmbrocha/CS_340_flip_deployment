@@ -1,0 +1,137 @@
+{% extends 'main.j2' %}
+
+{% block update_form %}
+    <form class="Form" method="POST" action="{{ url_for('update_db_entry') }}">
+        {# ADDED BELOW FROM TODD #}
+        <input type="hidden" name="select-type" value="{{ select_type }}" />  
+        <input type="hidden" name="old_name" value="{{ old_name }}">
+        {# ADDED ABOVE FROM TODD #}
+        {% for field in fields %}
+            {% if field == "Pet" %}
+                    <span class="input-group-text">Pet</span>
+                    <select name="Pet" class="select-form-control">
+                        {% if record_attr[0]['pet_name'] == None %}
+                            <option value="None" selected>None</option>
+                        {% endif %}
+                        {% for pet in pets %}
+                            {% if pet['pet_name'] == record_attr[0]['pet_name'] %}
+                                <option value="{{ pet['pet_name'] }}" selected>{{ pet['pet_name'] }}</option>
+                            {% else %}
+                                <option value="{{ pet['pet_name'] }}">{{ pet['pet_name'] }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select><br>
+            {% elif field == "Ability" %}
+                <span class="input-group-text">Ability</span>
+                    <select name="Ability" class="select-form-control">
+                        {% for ability in abilities %}
+                            {% if ability['ability_name'] == record_attr[0]['ability'] %}
+                                <option value="{{ ability['ability_name'] }}" selected>{{ ability['ability_name'] }}</option>
+                            {% else %}
+                                <option value="{{ ability['ability_name'] }}">{{ ability['ability_name'] }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select><br>
+            {% elif field == "Weapon" %}
+                <span class="input-group-text">Weapon</span>
+                    <select name="Weapon" class="select-form-control">
+                        {% if record_attr[0]['weapon'] == None %}
+                            <option value="None" selected>None</option>
+                        {% endif %}
+                        {% for weapon in weapons %}
+                            {% if weapon['item_name'] == record_attr[0]['weapon'] %}
+                                <option value="{{ weapon['item_name'] }}" selected>{{ weapon['item_name'] }}</option>
+                            {% else %}
+                                <option value="{{ weapon['item_name'] }}">{{ weapon['item_name'] }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select><br>
+            {% elif field == "Armor" %}
+                <span class="input-group-text">Armor</span>
+                    <select name="Armor" class="select-form-control">
+                        {% if record_attr[0]['armor'] == None %}
+                            <option value="None" selected>None</option>
+                        {% endif %}
+                        {% for armor in armors %}
+                            {% if armor['item_name'] == record_attr[0]['armor'] %}
+                                <option value="{{ armor['item_name'] }}" selected>{{ armor['item_name'] }}</option>
+                            {% else %}
+                                <option value="{{ armor['item_name'] }}">{{ armor['item_name'] }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select><br>
+            {% elif field == "Guild" %}
+                <span class="input-group-text">Guild</span>
+                    <select name="Guild" class="select-form-control">
+                        {% if record_attr[0]['guild'] == None %}
+                            <option value="None" selected>None</option>
+                        {% endif %}
+                        {% for guild in guilds %}
+                            {% if guild['guild_name'] == record_attr[0]['guild'] %}
+                                <option value="{{ guild['guild_name'] }}" selected>{{ guild['guild_name'] }}</option>
+                            {% else %}
+                                <option value="{{ guild['guild_name'] }}">{{ guild['guild_name'] }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select><br>
+            {% elif field == "Pet Type" %}
+                <span class="input-group-text">Pet Type</span>
+                    <select name="Pet Type" class="select-form-control">
+                        {% for pet_type in pet_types %}
+                            {% if pet_type['pet_type'] == record_attr[0]['pet_type'] %}
+                                <option value="{{ pet_type['pet_type'] }}" selected>{{ pet_type['pet_type'] }}</option>
+                            {% else %}
+                                <option value="{{ pet_type['pet_type'] }}">{{ pet_type['pet_type'] }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select><br>
+            {% elif field == "Item Type" %}
+                <span class="input-group-text">Item Type</span>
+                    <select name="Item Type" class="select-form-control">
+                        {% for type in item_types %}
+                            {% if type == record_attr[0]['item_type'] %}
+                                <option value="{{ type }}" selected>{{ type }}</option>
+                            {% else %}
+                                <option value="{{ type }}">{{ type }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select><br>
+            {% elif field == "Rarity" %}
+                <span class="input-group-text">Rarity</span>
+                    <select name="Rarity" class="select-form-control">
+                        {% for rarity in item_rarity %}
+                            {% if rarity == record_attr[0]['rarity'] %}
+                                <option value="{{ rarity }}" selected>{{ rarity }}</option>
+                            {% else %}
+                                <option value="{{ rarity }}">{{ rarity }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select><br>
+            {% elif field == "Name" %}
+                <label for="{{ field }}">{{ field }}</label>
+                <input type="text" id="{{ field }}" name="{{ field }}" placeholder="{{ name }}">
+                <br>
+            {% elif field == "Attack" %}
+                <label for="{{ field }}">{{ field }}</label>
+                <input type="number" id="{{ field }}" name="{{ field }}" placeholder="{{ record_attr[0]['attack'] }}">
+                <br>
+            {% elif field == "Defense" %}
+                <label for="{{ field }}">{{ field }}</label>
+                <input type="number" id="{{ field }}" name="{{ field }}" placeholder="{{ record_attr[0]['defense'] }}">
+                <br>
+            {% elif field == "Cost" %}
+                <label for="{{ field }}">{{ field }}</label>
+                <input type="number" id="{{ field }}" name="{{ field }}" placeholder="{{ record_attr[0]['cost'] }}">
+                <br>
+            {% elif field == "Color" %}
+                <label for="{{ field }}">{{ field }}</label>
+                <input type="number" id="{{ field }}" name="{{ field }}" placeholder="{{ record_attr[0]['color'] }}">
+                <br>
+            {% else %}
+                <label for="{{ field }}">{{ field }}</label>
+                <input type="text" id="{{ field }}" name="{{ field }}"><br>
+            {% endif %}
+        {% endfor %}
+        <input class="form-submit" type="submit" value="Submit Update">
+    </form>
+{% endblock update_form %}
