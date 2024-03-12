@@ -11,6 +11,10 @@
                             <th colspan="{{ max_members }}" style="text-align: center">
                                 {{ header }}
                             </th>
+                        {% elif header == "Color" %}
+                            <th style="text-align: center;">
+                                Color
+                            </th>
                         {% else %}
                             <th>
                                 {{ header }}
@@ -24,9 +28,7 @@
                 {% for key, value in guilds_dict.items() %}
                     <tr>
                         <td style="font-weight: bold">{{ key }}</td>
-                        <td>
-                            {{ value[0] }}
-                        </td>
+                        <td style="background-color: {{ value[0] }}"></td>
                         {% for i in range(max_members) %}
                             {% if value[1][0] == '' and i == 0 %}
                                 <td>

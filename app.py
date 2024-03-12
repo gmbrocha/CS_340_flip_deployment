@@ -113,7 +113,8 @@ def display_guilds():
 
     guilds_names = []
     for g in guilds:
-        guilds_names.append([g['name'], hex(g['color'])])
+        # guilds_names.append([g['name'], "#" + hex(g['color'])[2:]])
+        guilds_names.append([g['name'], "#" + '{0:06X}'.format(g['color'])])
 
     guilds_dict = {}
 
@@ -141,7 +142,7 @@ def display_guilds():
                 guilds_dict[name][1].append('')
 
     return render_template('guilds.j2', guilds_dict=guilds_dict, max_members=max_members, headers=headers)
-
+    # return render_template('status_message.j2', message=guilds_dict)
 
 @app.route('/alliances', methods=['POST', 'GET'])
 def display_alliances():
