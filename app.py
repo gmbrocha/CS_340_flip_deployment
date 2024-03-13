@@ -16,7 +16,7 @@ def root():
 def display_players():
 
     # connections put inside routes to fix timeout    
-    con = db.connect_to_database(host='classmysql.engr.oregonstate.edu', user='cs340_brocharg', passwd='3063', db='cs340_brocharg')
+    con = db.connect_to_database(host='classmysql.engr.oregonstate.edu', user='', passwd='', db='')
 
     query = '''SELECT Players.player_name AS name, Special_Abilities.ability_name AS ability,
             Pets.pet_name AS pet, i.item_name AS weapon, i2.item_name AS armor, Guilds.guild_name AS guild
