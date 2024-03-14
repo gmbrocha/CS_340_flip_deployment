@@ -113,9 +113,9 @@ table tbody tr:last-of-type {
     width: 295px;
 }
 
-.Form input {
+/* .Form input {
     width: 100%;
-}
+} */
 
 /* .form-submit {
     background-color: #3491b9;
@@ -127,7 +127,7 @@ table tbody tr:last-of-type {
 } */
 
 #form-submit {
-    width: 295px;
+    width: 300px;
     background-color: #3491b9;
     color: white;
     padding: 1em 1.5em;
@@ -141,7 +141,7 @@ table tbody tr:last-of-type {
 }
 
 .select-form-control {
-    width: 295px;
+    width: 300px;
 }
 
 @media (max-width: 768px) {
