@@ -8,10 +8,10 @@
 <body>
     <div class="body-container">
         <div id="app-header">
-            <h1>FantasyGame Armory</h1>
+            <h1 style="font-family: stantire, sans-serif;">FantasyGame Armory</h1>
         </div>
         <div id="app-header">
-            <h2>the most <span style="font-style: italic">extensive</span> database for FantasyGame</h2>
+            <h2 style="font-family: stantire, sans-serif;">the most <span style="font-style: italic">extensive</span> database for FantasyGame</h2>
         </div>
         <h3 style="padding: 10px;">
             View tables with these links:
@@ -30,7 +30,7 @@
             <form class="entry-menu" method="POST" action="{{ url_for('create_entry_form') }}">
                 <div class="dropdown-group" style="padding: 10px">
                         <h3 style="padding: 0;">Select and create record here:</h3>
-                            <select name="entry-type" class="select-form-control">
+                            <select name="entry-type">
                                 <option value="Player">Player</option>
                                 <option value="Pet">Pet</option>
                                 <option value="Ability">Ability</option>
@@ -42,9 +42,10 @@
                 </div>
             </form>
         </div>
-        <hr>
+        {# <hr> #}
     </div>
     <div class="element-display">
+        {% block small_text %}{% endblock small_text %}
         {% block player_display %}{% endblock player_display %}
         {% block pets_display %}{% endblock pets_display %}
         {% block abilities_display %}{% endblock abilities_display %}

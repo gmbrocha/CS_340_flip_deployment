@@ -9,7 +9,7 @@ app = Flask(__name__)
 @app.route('/')
 def root():
 
-    return render_template('main.j2')
+    return render_template('small_text.j2')
 
 
 @app.route('/players', methods=['POST', 'GET'])
